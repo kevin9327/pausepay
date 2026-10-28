@@ -1,0 +1,15 @@
+{
+  "name": "pausepay",
+  "version": "0.1.0",
+  "description": "PausePay — an AI cooling-off layer for PayPal payments. Pause risky payments (authorize), let an AI risk analyst and a trusted contact review, then capture or void.",
+  "type": "module",
+  "license": "MIT",
+  "engines": { "node": ">=20" },
+  "scripts": {
+    "start": "node src/server.js",
+    "mock": "PAYPAL_CLIENT_ID= PAYPAL_CLIENT_SECRET= node src/server.js",
+    "mcp": "node mcp/server.js",
+    "test": "node test/run.js && node test/mcp.js && node test/ai.js && node test/ai_real.js"
+  },
+  "keywords": ["paypal", "ai", "agentic-commerce", "fraud", "mcp", "hackathon"]
+}

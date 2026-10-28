@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><title>PausePay — how it works</title>
+<style>
+  html, body { margin: 0; height: 100%; background: radial-gradient(1200px 700px at 70% 10%, #174a86 0%, #0b1f3a 62%, #07152a 100%); color: #fff; font: 16px/1.4 "Segoe UI", system-ui, sans-serif; overflow: hidden; }
+  .wrap { height: 100%; padding: 56px 90px; box-sizing: border-box; display: flex; flex-direction: column; justify-content: center; }
+  h2 { font-size: 46px; margin: 0 0 36px; letter-spacing: -1px; animation: up .7s both; }
+  .flow { display: flex; align-items: stretch; gap: 14px; }
+  .node { flex: 1; background: rgba(255,255,255,.08); border: 1px solid rgba(255,255,255,.22); border-radius: 18px; padding: 20px 20px 18px; animation: up .7s both; }
+  .node b { display: block; font-size: 25px; margin-bottom: 6px; }
+  .node small { display: block; font-size: 17px; color: #bcd6f7; }
+  .node code { display: block; margin-top: 10px; font: 15px Consolas, monospace; color: #7fe0a8; }
+  .arrow { align-self: center; font-size: 30px; color: #5fa8ff; animation: up .7s both; }
+  .n1 { animation-delay: .3s } .a1 { animation-delay: .5s } .n2 { animation-delay: .7s } .a2 { animation-delay: .9s } .n3 { animation-delay: 1.1s } .a3 { animation-delay: 1.3s } .n4 { animation-delay: 1.5s }
+  .split { display: flex; gap: 14px; margin-top: 14px; }
+  .split .node { animation-delay: 1.7s; } .split .node:nth-child(2) { animation-delay: 1.9s; }
+  .foot { margin-top: 38px; display: flex; justify-content: space-between; align-items: baseline; font-size: 24px; color: #cfe3ff; animation: up .8s 2.4s both; }
+  .foot b { color: #fff; font-size: 34px; }
+  @keyframes up { from { transform: translateY(22px); opacity: 0 } to { transform: none; opacity: 1 } }
+</style>
+<div class="wrap">
+  <h2>Built on PayPal's authorize / capture / void</h2>
+  <div class="flow">
+    <div class="node n1"><b>1 &middot; Assess</b><small>Risk analyst reads the messages behind the payment</small><code>Gemini &middot; Claude &middot; OpenAI + rules</code></div>
+    <div class="arrow a1">&rarr;</div>
+    <div class="node n2"><b>2 &middot; Authorize</b><small>Funds reserved, nothing sent to the payee</small><code>Orders v2 &middot; intent=AUTHORIZE</code></div>
+    <div class="arrow a2">&rarr;</div>
+    <div class="node n3"><b>3 &middot; Review</b><small>Trusted contact approves or denies</small><code>/guardian/&lt;token&gt;</code></div>
+    <div class="arrow a3">&rarr;</div>
+    <div class="node n4"><b>4 &middot; Settle</b><small>Capture on approval, void when denied or expired</small><code>Payments v2 &middot; capture | void</code></div>
+  </div>
+  <div class="split">
+    <div class="node"><b>MCP server for AI agents</b><small>check &middot; create &middot; status &middot; answers &middot; release &middot; void &mdash; agents cannot self-approve a risky payment</small></div>
+    <div class="node"><b>Open source &middot; MIT &middot; zero dependencies</b><small>Node 20+, mock PayPal for offline demos, end-to-end tests for every path</small></div>
+  </div>
+  <div class="foot"><span>The pause button for agentic commerce</span><b>PausePay</b></div>
+</div>

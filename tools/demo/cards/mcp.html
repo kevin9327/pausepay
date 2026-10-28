@@ -1,0 +1,45 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><title>PausePay MCP — agent session</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #0b1220; color: #e6edf7; font: 20px/1.55 Consolas, "Cascadia Mono", monospace; overflow: hidden; }
+  .wrap { padding: 38px 64px; }
+  .bar { display: flex; align-items: center; gap: 10px; margin-bottom: 20px; font: 600 20px "Segoe UI", sans-serif; color: #8fb2e0; }
+  .bar i { width: 13px; height: 13px; border-radius: 50%; display: inline-block; } .bar i:nth-child(1) { background: #ff5f57 } .bar i:nth-child(2) { background: #febc2e } .bar i:nth-child(3) { background: #28c840 }
+  .bar span { margin-left: 12px; }
+  .line { opacity: 0; transform: translateY(6px); transition: opacity .35s, transform .35s; white-space: pre-wrap; }
+  .line.on { opacity: 1; transform: none; }
+  .agent { color: #9bd0ff; } .tool { color: #ffd479; } .arg { color: #9aa8bd; } .res { color: #cdd9ea; padding-left: 30px; }
+  .human { color: #c8a7ff; font-style: italic; }
+  .ok { color: #7fe0a8; } .bad { color: #ff8585; font-weight: 700; } .gap { height: 12px; }
+  .note { margin-top: 26px; font: 18px "Segoe UI", sans-serif; color: #6f86a6; }
+</style>
+<div class="wrap">
+  <div class="bar"><i></i><i></i><i></i><span>AI agent &middot; MCP server &ldquo;pausepay&rdquo; &middot; real responses</span></div>
+  <div id="log"></div>
+  <div class="note" id="note"></div>
+</div>
+<script>
+const T = /*TRANSCRIPT*/null;
+const esc = (s) => String(s).replace(/[&<>]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;' }[c]));
+const fmt = (o) => '{ ' + Object.entries(o).map(([k, v]) => `${k}: ${JSON.stringify(v)}`).join(', ') + ' }';
+const lines = [];
+lines.push(['agent', `agent&gt; ${esc(T.task)}`]);
+lines.push(['arg', `tools: ${esc(T.tools.join(' · '))}`]);
+lines.push(['gap', '']);
+for (const s of T.steps) {
+  if (s.human) { lines.push(['human', `· ${esc(s.human)}`]); lines.push(['gap', '']); continue; }
+  lines.push(['tool', `→ ${esc(s.call)}  <span class="arg">${esc(fmt(s.args))}</span>`]);
+  for (const r of s.result) {
+    const cls = /block|BLOCKED|refused/i.test(r) ? 'bad' : /verdict|status/.test(r) ? 'ok' : '';
+    lines.push(['res', `<span class="${cls}">${esc(r)}</span>`]);
+  }
+  lines.push(['gap', '']);
+}
+const log = document.getElementById('log');
+const els = lines.map(([cls, html]) => { const d = document.createElement('div'); d.className = 'line ' + cls; d.innerHTML = html || '&nbsp;'; if (cls === 'gap') d.className = 'gap'; log.appendChild(d); return d; });
+// beats: window.reveal(n) shows the first n lines; the recorder calls it in step with the narration
+window.reveal = (n) => els.forEach((e, i) => e.classList && e.classList.toggle('on', i < n));
+window.lineCount = els.length;
+window.stepEnds = (() => { const ends = []; let i = 3; for (const s of T.steps) { i += s.human ? 2 : 1 + s.result.length + 1; ends.push(i); } return ends; })();
+document.getElementById('note').textContent = 'Example agent task. Every PausePay response above is real MCP output.';
+</script>

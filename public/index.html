@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PausePay — pause before you pay</title>
+<link rel="stylesheet" href="/style.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%230070e0'/%3E%3Crect x='9' y='8' width='5' height='16' rx='2' fill='white'/%3E%3Crect x='18' y='8' width='5' height='16' rx='2' fill='white'/%3E%3C/svg%3E">
+</head>
+<body>
+<header class="top">
+  <div class="logo">
+    <div class="mark"><svg width="26" height="26" viewBox="0 0 32 32"><rect x="7" y="5" width="7" height="22" rx="3" fill="#0070e0"/><rect x="18" y="5" width="7" height="22" rx="3" fill="#0b1f3a"/></svg></div>
+    <div><h1>PausePay</h1><small>Pause before you pay — an AI cooling-off layer for PayPal</small></div>
+  </div>
+  <div class="badges" id="badges"></div>
+</header>
+<main>
+  <section class="card" id="left">
+    <h2>1 · New payment</h2>
+    <div class="chips" id="scenarios"></div>
+    <form id="form">
+      <div class="row"><div><label>Pay to</label><input id="payeeName" required placeholder="Name of the person or shop"></div>
+        <div><label>Currency</label><select id="currency"><option>USD</option><option>EUR</option><option>GBP</option><option>CAD</option><option>AUD</option></select></div></div>
+      <div class="row"><div><label>Payee handle / email (optional)</label><input id="payeeHandle" placeholder="@name or email"></div>
+        <div><label>Amount</label><input id="amount" type="number" step="0.01" min="0.01" required placeholder="0.00"></div></div>
+      <label>What is this for?</label><input id="memo" placeholder="e.g. concert tickets">
+      <label>Paste the messages, listing or invoice</label>
+      <textarea id="context" placeholder="Paste the chat or listing here. The AI reads it before any money moves."></textarea>
+      <label>Trusted contact (who can approve risky payments)</label><input id="guardianName" placeholder="e.g. Mom" value="Mom">
+      <div class="actions"><button class="primary" type="submit" id="go">Check &amp; create payment</button></div>
+      <p class="note">Nothing is charged until you approve at PayPal. Risky payments are <b>authorized</b> (funds held, not sent) and can be voided.</p>
+    </form>
+    <h3>Recent</h3><div class="list" id="recent"></div>
+    <p class="note"><a href="#" id="reset">Reset demo data</a></p>
+  </section>
+
+  <section id="right"></section>
+</main>
+<div class="toast" id="toast"></div>
+<script src="/app.js"></script>
+</body>
+</html>

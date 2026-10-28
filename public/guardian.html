@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PausePay — trusted contact review</title>
+<link rel="stylesheet" href="/style.css">
+</head>
+<body>
+<header class="top"><div class="logo"><div class="mark"><svg width="26" height="26" viewBox="0 0 32 32"><rect x="7" y="5" width="7" height="22" rx="3" fill="#0070e0"/><rect x="18" y="5" width="7" height="22" rx="3" fill="#0b1f3a"/></svg></div><div><h1>PausePay</h1><small>Trusted-contact review</small></div></div></header>
+<div class="guardian-wrap" id="root"><div class="card empty">Loading…</div></div>
+<script>
+const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const token = location.pathname.split('/').pop();
+async function load() {
+  const r = await fetch(`/api/guardian/${token}`);
+  if (!r.ok) { document.getElementById('root').innerHTML = '<div class="card empty"><h2>This link is not valid.</h2></div>'; return; }
+  const p = await r.json(); draw(p);
+}
+function draw(p) {
+  const a = p.assessment;
+  const fmt = new Intl.NumberFormat('en-US', { style: 'currency', currency: p.currency }).format(p.amount);
+  const decided = p.guardian.decision;
+  const cls = a.verdict === 'allow' ? 'ok' : a.verdict === 'block' ? 'bad' : '';
+  document.getElementById('root').innerHTML = `
+  <div class="card">
+    <p style="margin:0;color:#5b6b82">${esc(p.guardian.name || 'Trusted contact')}, someone asked you to double-check a payment.</p>
+    <div class="amount">${fmt} <span style="font-size:18px;font-weight:600;color:#5b6b82">to ${esc(p.payee.name)}</span></div>
+    <p>${esc(p.memo || '')} · status <span class="status ${p.status}">${p.status.replace('_', ' ')}</span></p>
+    <div class="warning ${cls}"><b>AI risk ${a.score}/100 (${a.verdict.toUpperCase()}).</b> ${esc(a.summary)}</div>
+    <h3>Why</h3>
+    ${a.signals.map((s) => `<div class="signal" style="margin-bottom:8px"><span class="dot ${s.severity}"></span><div><b>${esc(s.label)}</b><span>${esc(s.evidence)}</span></div></div>`).join('') || '<p class="note">No warning signs.</p>'}
+    <h3>The conversation</h3><div class="ctx">${esc(p.context || '(none provided)')}</div>
+    ${p.answers.length ? `<h3>What the payee answered</h3><div class="ctx">${esc(p.answers.at(-1).text)}</div>` : ''}
+    <p class="note">The money is only <b>on hold</b> at PayPal. If you deny, it is released back to the buyer automatically.</p>
+    ${decided ? `<div class="warning ${decided === 'approve' ? 'ok' : 'bad'}"><b>You ${decided === 'approve' ? 'approved' : 'denied'} this payment.</b> ${esc(p.guardian.note || '')}</div>` : `
+    <label>Optional note to the buyer</label><input id="note" placeholder="e.g. I know this seller / this looks like a scam">
+    <div class="actions"><button class="good" id="ok">Approve payment</button><button class="danger" id="no">Deny — stop the payment</button></div>`}
+    <h3>Audit trail</h3><div class="timeline">${p.events.map((e) => `<div class="ev"><time>${new Date(e.at).toLocaleTimeString('en-US')}</time>${esc(e.msg)}</div>`).join('')}</div>
+  </div>`;
+  if (!decided) {
+    const send = async (decision) => {
+      const r = await fetch(`/api/guardian/${token}/decision`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ decision, note: document.getElementById('note').value }) });
+      if (!r.ok) alert((await r.json()).error);
+      load();
+    };
+    document.getElementById('ok').onclick = () => send('approve');
+    document.getElementById('no').onclick = () => send('deny');
+  }
+}
+load(); setInterval(load, 5000);
+</script>
+</body>
+</html>

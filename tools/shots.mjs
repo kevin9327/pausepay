@@ -1,0 +1,21 @@
+// Takes UI screenshots of the running app (mock or sandbox) for QA. Usage: node tools/shots.mjs [outDir]
+import fs from 'node:fs';
+import { launch } from './cdp.mjs';
+const out = process.argv[2] || 'shots';
+fs.mkdirSync(out, { recursive: true });
+const page = await launch({ width: 1440, height: 980 });
+await page.goto('http://localhost:8787/');
+await page.eval(`fetch('/api/reset',{method:'POST'})`);
+await page.goto('http://localhost:8787/');
+await page.shot(`${out}/01-home.png`);
+await page.click('.chip.scam:nth-of-type(3)');
+await page.click('#go');
+await page.sleep(900);
+await page.shot(`${out}/02-blocked.png`);
+await page.goto('http://localhost:8787/');
+await page.click('.chip.risky');
+await page.click('#go');
+await page.sleep(900);
+await page.shot(`${out}/03-hold-awaiting.png`);
+await page.close();
+console.log('saved to', out);
